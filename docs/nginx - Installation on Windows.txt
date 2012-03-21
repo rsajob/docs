@@ -1,0 +1,142 @@
+Установка и настройка nginx на Windows (как сервис)
+============================================================
+
+  Скачиваем последнюю версию отсюда http://nginx.org/ru/download.html (на данный момент nginx/Windows-1.1.17)
+  Распаковываем архив в папку D:\Work\tools\web\ (должно получится D:\Work\tools\web\nginx-1.1.17)
+
+Запуск как сервис
+=====================
+  Для этого нам понадобится обёртка winsw, она позволяет запускать любое консольное приложение Windows как сервис.
+  Официальный сайт: http://kenai.com/projects/winsw/pages/Home
+
+  Создаём папку 
+  mkdir D:\Work\tools\web\nginx-1.1.17\nginx_service
+  cd D:\Work\tools\web\nginx-1.1.17\nginx_service
+
+  Скачиваеь winsw-1.9-bin.exe с официального сайта либо с https://raw.github.com/rsajob/docs/master/tools/winsw/winsw-1.9-bin.exe
+  Перемиеновываем winsw-1.9-bin.exe в тпштч_service.exe и ложим его созданную папку (D:\Work\tools\web\nginx-1.1.17\nginx_service)
+
+  В этой же папке создаём файл nginx_service.xml со следующим содержанием
+   <service>
+     <id>nginx</id>
+     <name>nginx</name>
+     <description>nginx</description>
+     <executable>D:\Work\tools\web\nginx-1.1.17\nginx.exe</executable>
+     <logpath>D:\Work\tools\web\nginx-1.1.17\nginx_service\</logpath>
+     <logmode>roll</logmode>
+     <depend></depend>
+     <startargument>-p D:\Work\tools\web\nginx-1.1.17</startargument>
+     <stopargument>-p D:\Work\tools\web\nginx-1.1.17 -s quit</stopargument>
+   </service>
+  
+  Под админом вызываем:
+  nginx_service.exe install
+  nginx_service.exe start
+
+  В случае если сервис не стартанул смотрим ошибки в логе
+  D:\Work\tools\web\php_5.3.10\php-cgi_service\php-cgi_service.wrapper.log 
+
+  Другие комманды работы с winsw:
+    To install a service, run myapp.exe install
+    To start a service, run myapp.exe start
+    To stop a service, run myapp.exe stop
+    To restart a service, run myapp.exe restart
+    To uninstall a service, run myapp.exe uninstall
+    Доп инфа http://kenai.com/projects/winsw/pages/Home
+  
+Конфигурирование
+=========================
+
+  Переименовываем файл conf\nginx.conf в conf\nginx.conf.old
+  Создаём новый файл conf\nginx.conf со следующим содержанием:
+
+  #-----------------------------------------------------------------
+    worker_processes  1;
+
+    events {
+        worker_connections  1024;
+    }
+
+    http {
+        include       mime.types;
+        default_type  application/octet-stream;
+
+        sendfile       on;
+        tcp_nopush     on;
+        tcp_nodelay    on;
+
+        client_header_timeout  10m;
+        client_body_timeout    10m;
+        send_timeout           10m;
+
+        keepalive_timeout  0;
+
+        include fastcgi.conf;
+        include D:/Work/projects/web/sites-conf/*.conf;
+    }
+  #-----------------------------------------------------------------
+
+  В папке D:/Work/projects/web/sites-conf/ в данном случае должны лежать 
+  файлы конфигурации (*.conf) конкртеных виртульных серверов
+
+Пример конфигурации обычного php сервера
+---------------------------------------------------
+    server {
+        listen      80;
+		server_name myserver.com;
+		charset utf-8;
+		index index.php index.html;
+		root /path/to/myserver.com/htdocs;
+
+		access_log  "/path/to/logs/nginx.access.log";
+		error_log	"/path/to/logs/nginx.error.log" notice;
+
+        # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+        #
+        location ~ \.php$ {
+            root           /home/fantom/smsfun.am/htdocs;
+            fastcgi_pass   127.0.0.1:9000;
+            fastcgi_index  index.php;
+            fastcgi_param  SCRIPT_FILENAME  $document_root/$fastcgi_script_name;
+            include        fastcgi_params;
+        }
+
+
+		location ~*  ^.+\.(jpg|jpeg|gif|png|ico|css|js|bmp)$ 
+		{
+			access_log off;
+			error_log off;
+		}
+    }
+
+
+Пример конфигурации сервера на основе limb3
+---------------------------------------------------
+    server {
+        listen       	80;
+		server_name 	myserver.com;
+		index        	index.php;
+		root 			"D:/Work/projects/web/myserver.com/www";
+
+		access_log  D:/Work/projects/web/_nginx_logs/myserver.com.info.access.log;
+		error_log	D:/Work/projects/web/_nginx_logs/myserver.com.info.error.log notice;
+
+		location / 
+		{
+			if (!-e $request_filename) 
+			{
+				rewrite ^(.*)$ /index.php last;
+			}
+		}
+
+        location ~ \.php$ 
+		{
+            fastcgi_pass   127.0.0.1:9000;
+            fastcgi_index  index.php;
+            fastcgi_param  SCRIPT_FILENAME  $document_root/$fastcgi_script_name;
+            include        fastcgi_params;
+        }
+    }
+
+
+

@@ -49,7 +49,7 @@
   Для этого нам понадобится обёртка winsw, она позволяет запускать любое консольное приложение Windows как сервис.
   Официальный сайт: http://kenai.com/projects/winsw/pages/Home
 
-  Создаёь папку 
+  Создаём папку 
   mkdir D:\Work\tools\web\php_5.3.10\php-cgi-service
 
   cd D:\Work\tools\web\php_5.3.10\php-cgi-service
@@ -72,9 +72,7 @@
   
   Под админом вызываем:
   php-cgi_service.exe install
-
-  Под админом заходим в Панель Управления->Администрирование->Службы и смотрим создался ли сервис php-cgi. 
-  Запускаем php-cgi и проверяем чтобы он запускался автоматически.
+  php-cgi_service.exe start
 
   В случае если сервис не стартанул смотрим ошибки в логе
   D:\Work\tools\web\php_5.3.10\php-cgi_service\php-cgi_service.wrapper.log 
