@@ -11,7 +11,7 @@
   Non Thread Safe по большей части нужен для быстрой работы в связка IIS FastCGI. Я ставил и тот и 
   тот вариант, почемуто в "Non Thread Safe" перед выполнением некоторых скриптов, например PHPUnit 
   была задержка около секунды, короче ставить "Thread Safe". Более подробно про отличия можно почитать 
-  тут: http://www.iis-aid.com/articles/my_word/  difference_between_php_thread_safe_and_non_thread_safe_binaries
+  тут: http://www.iis-aid.com/articles/my_word/difference_between_php_thread_safe_and_non_thread_safe_binaries
 
 Скачиваем Installer и устанавливаем
 ---------------------------------------------------
@@ -36,14 +36,56 @@
  - затем всё Enter... Enter...
  - проверяем, запускаем pear в коммандной строке
  - если выдаёт сообщение 
-    PHP_PEAR_PHP_BIN is not set correctly.
- то меняем в файле pear.bat строку 
-    IF "%PHP_PEAR_PHP_BIN%"=="" SET "PHP_PEAR_PHP_BIN=.\php.exe"
-    на   
-    IF "%PHP_PEAR_PHP_BIN%"=="" SET "PHP_PEAR_PHP_BIN=D:\Work\tools\web\php_5.3.10\php.exe"
+     PHP_PEAR_PHP_BIN is not set correctly.
+   то меняем в файле pear.bat строку 
+     IF "%PHP_PEAR_PHP_BIN%"=="" SET "PHP_PEAR_PHP_BIN=.\php.exe"
+     на   
+     IF "%PHP_PEAR_PHP_BIN%"=="" SET "PHP_PEAR_PHP_BIN=D:\Work\tools\web\php_5.3.10\php.exe"
  - проверяем вызов pear (из каталога не где установлен php)
  - если всёравно какието ошибки то читаем доку http://fkn.ktu10.com/?q=node/462 или ищем в инете решение
 
+Запуск php-cgi сервера как сервис Windows
+============================
+  Для этого нам понадобится обёртка winsw, она позволяет запускать любое консольное приложение Windows как сервис.
+  Официальный сайт: http://kenai.com/projects/winsw/pages/Home
+
+  Создаёь папку 
+  mkdir D:\Work\tools\web\php_5.3.10\php-cgi-service
+
+  cd D:\Work\tools\web\php_5.3.10\php-cgi-service
+
+  Скачиваеь winsw-1.9-bin.exe с официального сайта либо с https://raw.github.com/rsajob/docs/master/tools/winsw/winsw-1.9-bin.exe
+  Перемиеновываем winsw-1.9-bin.exe в php-cgi_service.exe и ложим его созданную папку (D:\Work\tools\web\php_5.3.10\php-cgi-service\)
+
+  В этой же папке создаём файл php-cgi_service.xml со следующим содержанием
+    <service>
+     <id>php-cgir</id>
+     <name>php-cgi</name>
+     <description>Server php-cgi on port 9000</description>
+     <executable>D:\Work\tools\web\php_5.3.10\php-cgi.exe</executable>
+     <logpath>D:\Work\tools\web\php_5.3.10\php-cgi_service\</logpath>
+     <logmode>roll</logmode>
+     <depend></depend>
+     <env name="PHP_FCGI_MAX_REQUESTS" value="0"/>
+     <arguments>-b 127.0.0.1:9000 -c D:\Work\tools\web\php_5.3.10\php.ini </arguments>
+   </service>
+  
+  Под админом вызываем:
+  php-cgi_service.exe install
+
+  Под админом заходим в Панель Управления->Администрирование->Службы и смотрим создался ли сервис php-cgi. 
+  Запускаем php-cgi и проверяем чтобы он запускался автоматически.
+
+  В случае если сервис не стартанул смотрим ошибки в логе
+  D:\Work\tools\web\php_5.3.10\php-cgi_service\php-cgi_service.wrapper.log 
+
+  Другие комманды работы с winsw:
+    To install a service, run myapp.exe install
+    To start a service, run myapp.exe start
+    To stop a service, run myapp.exe stop
+    To restart a service, run myapp.exe restart
+    To uninstall a service, run myapp.exe uninstall
+    Доп инфа http://kenai.com/projects/winsw/pages/Home
 
 Установка PHPUnit:
 ============================
@@ -59,7 +101,7 @@
   PEAR_Config::writeConfigFile fopen('C:\Windows\pear.ini','w') failed (fopen(C:\Windows\pear.ini): failed to open stream: Permission denied)
   то запустить комманду от имени администратора
 
- pear install phpunit/PHPUnit
+  pear install phpunit/PHPUnit
 
   Должна установится PHPUnit версия 3.6.10 или выше. Версии PHPUnit 1 и 2 не катят, 
   они хотят ставится до обновления pear (pear upgrade pear). 
