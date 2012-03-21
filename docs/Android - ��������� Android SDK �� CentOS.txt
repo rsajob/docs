@@ -1,0 +1,30 @@
+
+##########################################
+# Установка JRE 1.6
+yum list \*java-1\* | grep open
+yum install java-1.6.0-openjdk.x86_64
+yum install java-1.6.0-openjdk-devel.x86_64
+
+##########################################
+# Установка Android на CentOS (http://www.stevebrookes.id.au/mediawiki/index.php/Installing_Android_on_CentOS)
+wget http://dl.google.com/android/android-sdk_r13-linux_x86.tgz
+gunzip android-sdk_r13-linux_x86.tgz
+tar xvf android-sdk_r13-linux_x86.tar 
+mv android-sdk-linux_x86/ /opt/android-sdk
+chmod -R a+w /opt/android-sdk
+export PATH=$PATH:/opt/android-sdk/tools/
+
+# We know that everything is working so far but the PATH variable is currently only set for the session. You could make this permanent by editing the relevant profile files or add a script to the /etc/profile.d directory:
+vi /etc/profile.d 
+	#This is a script to add the android SDK to the PATH variable.
+	export PATH=$PATH:/opt/android-sdk/tools/
+
+###########################################
+# Обновление Android SDK
+android update sdk --no-ui
+
+# путь к дополнительным инструментам
+export PATH=$PATH:/opt/android-sdk/platform-tools/
+
+
+

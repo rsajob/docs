@@ -1,0 +1,3 @@
+/usr/bin/nice /usr/local/bin/ffmpeg -i 37316.0.flv -vcodec mpeg4 -b 60k -s qvga -acodec libfaac -ab 64k -ar 11025 37316.320x240.avi 
+/usr/bin/nice /usr/local/bin/ffmpeg -i 37316.0.flv -vcodec libx264 -b 250k -s qvga -acodec libfaac -ab 16k -ar 22050 -ac 1 37316.320x240.avi 
+/usr/bin/nice /usr/local/bin/ffmpeg -i 37316.0.flv -vcodec mpeg4 -b 250k -s qqvga -acodec libfaac -ab 16k -ar 22050 -ac 1 37316.160x120.avi 

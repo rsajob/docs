@@ -1,0 +1,19 @@
+
+Запуск:
+/usr/local/nginx/sbin/nginx
+/usr/sbin/nginx
+
+Проверка процессов:
+ps ax -o pid,ppid,user,%cpu,vsz,wchan,command | egrep '(nginx|PID)'
+
+Грохнуть процесс:
+/bin/kill -s HUP 198
+
+перезагрузка ngnix:
+
+сначала nginx -t
+если на конфиг не ругается - то killall -HUP nginx
+
+
+http://www.cyberciti.biz/faq/freebsd-start-stop-restart-nginx-webserver/
+http://www.opennet.ru/base/net/nginx_ipb.txt.html

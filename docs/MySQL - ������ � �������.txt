@@ -1,0 +1,10 @@
+
+Сделать дамп:
+mysqldump -R -q -u<user> -p<pass> <dbname> > file_dump.sql
+
+Залить дамп:
+mysql -u<user> -p<pass> <dbname> < file_dump.sql
+
+Запоковать/распоковать дамп:
+zip file_dump.sql.zip file_dump.sql
+unzip file_dump.sql.zip

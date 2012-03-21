@@ -1,0 +1,11 @@
+<service>
+ <id>php-cgi</id>
+ <name>php-cgi</name>
+ <description>php-cgi</description>
+ <executable>D:\Work\tools\web\php\php-cgi.exe</executable>
+ <logpath>D:\Work\tools\web\php\wrapper\</logpath>
+ <logmode>roll</logmode>
+ <depend></depend>
+ <env name="PHP_FCGI_MAX_REQUESTS" value="0"/>
+ <arguments>-b 127.0.0.1:9000 -c D:\Work\tools\web\php\php.ini</arguments>
+</service>

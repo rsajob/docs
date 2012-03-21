@@ -1,0 +1,6 @@
+
+# edit php.ini
+vi /etc/php.ini
+
+# restart
+/sbin/service php-fpm restart

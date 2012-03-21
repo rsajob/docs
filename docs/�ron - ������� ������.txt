@@ -1,0 +1,8 @@
+# Редактировать  crontab
+vi /etc/crontab    
+
+Добвить туда строку (запуск каждый день в 03:00):
+0 3 * * * root cd php /var/www/htdocs/;php index.php > /dev/null 2>&1
+
+# Перезапустить от рута
+/etc/init.d/crond restart

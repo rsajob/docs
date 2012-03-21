@@ -1,0 +1,77 @@
+Установка PHP на Windows
+=============================
+
+Скачиваем нужную версию отсюда http://windows.php.net/download/
+В данный момент PHP 5.3 (5.3.10) 
+
+Выбор версии: "Non Thread Safe" или "Thread Safe".
+---------------------------------------------------
+Вкратце: на Windows в качстве локального сервера (чисто для разработки) надо ставить Thread Safe (потокобезопастный вариант). 
+Более ранние версии PHP для Windows были по умолчанию Thread Safe. Non Thread Safe по большей части нужен для быстрой работы 
+в связка IIS FastCGI. Я ставил и тот и тот вариант, почемуто в "Non Thread Safe" перед выполнением некоторых скриптов, 
+например PHPUnit была задержка около секунды, короче ставить "Thread Safe".
+Более подробно про отличия можно почитать тут: http://www.iis-aid.com/articles/my_word/difference_between_php_thread_safe_and_non_thread_safe_binaries
+
+Скачиваем Installer и устанавливаем
+---------------------------------------------------
+Устанавливаем в нужную папку (у меня в D:\Work\tools\web\php_5.3.10)
+В настройках установки включаем PEAR
+
+Донастраиваем php.ini (находим эти строки и меняем)
+---------------------------------------------------
+max_execution_time = 1000;
+error_reporting = E_ALL | E_STRICT
+display_errors = On
+display_startup_errors = On
+track_errors = On
+html_errors = On
+date.timezone = "Europe/Moscow
+
+Установка PEAR
+=============================================================
+ - запускаем go-pear.bat
+ - выбираем local
+ - подтверждаем yes Enter
+ - затем всё Enter... Enter...
+ - проверяем, запускаем pear в коммандной строке
+ - если выдаёт сообщение 
+    PHP_PEAR_PHP_BIN is not set correctly.
+ то меняем в файле pear.bat строку 
+    IF "%PHP_PEAR_PHP_BIN%"=="" SET "PHP_PEAR_PHP_BIN=.\php.exe"
+    на   
+    IF "%PHP_PEAR_PHP_BIN%"=="" SET "PHP_PEAR_PHP_BIN=D:\Work\tools\web\php_5.3.10\php.exe"
+ - проверяем вызов pear (из каталога не где установлен php)
+ - если всёравно какието ошибки то читаем доку http://fkn.ktu10.com/?q=node/462 или ищем в инете решение
+
+
+Установка PHPUnit:
+============================
+pear update-channels
+pear upgrade pear
+pear channel-discover pear.phpunit.de
+pear channel-discover components.ez.no
+pear channel-discover pear.symfony-project.com
+
+Подсказка: 
+-----------------------
+Если при pear channel-discover будут ошибка 
+PEAR_Config::writeConfigFile fopen('C:\Windows\pear.ini','w') failed (fopen(C:\Windows\pear.ini): failed to open stream: Permission denied)
+то запустить комманду от имени администратора
+
+pear install phpunit/PHPUnit
+
+Должна установится PHPUnit версия 3.6.10 или выше. Версии PHPUnit 1 и 2 не катят, они хотят ставится до обновления pear (pear upgrade pear). 
+
+Установка xDebug
+============================
+Установка через "pecl install xdebug" не работает, поэтому нужно устанавливать в рчную. 
+
+Заходим на http://xdebug.org/find-binary.php, копируем вывод phpinfo (php -i >>phpinfo.txt) в поле ввода на странице 
+и покажет какой бинарник скачать, куда его положить и что добавить в php.ini
+
+Подсказка по PhpStorm: 
+------------------------
+Если отладка в сред PhpStorm при помощи xdebug не работает, то попробовать поменять в 
+настройках PHP->Debug порт с 9000 на 9001, т.к. порт 9000 может быть занят (у меня например занят php-cgi)
+
+Руководство по xDebug http://www.ibm.com/developerworks/ru/library/os-php-xdebug/index.html#configuring

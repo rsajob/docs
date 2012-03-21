@@ -1,0 +1,20 @@
+# источник http://duntuk.com/how-install-ffmpeg-centosrhel-yum
+
+# To fix rpmforge GPG key warning: 
+rpm -Uhv http://apt.sw.be/redhat/el5/en/i386/rpmforge/RPMS/rpmforge-release-0.3.6-1.el5.rf.i386.rpm
+
+nano -w /etc/yum.repos.d/dag.repo
+
+Insert
+
+[dag]
+ name=Dag RPM Repository for Red Hat Enterprise Linux
+ baseurl=http://apt.sw.be/redhat/el$releasever/en/$basearch/dag
+ gpgcheck=0
+ enabled=1
+
+yum install ffmpeg
+yum install ffmpeg-devel
+
+
+#Ещё хороший материал: http://itblog.su/ustanovka-ffmpeg-i-ffmpeg-php-na-centos.html

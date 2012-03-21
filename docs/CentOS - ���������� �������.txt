@@ -1,0 +1,13 @@
+А есть где-то мануал как обновить, тоже бы свой VPS обновил. Заранее благодарен 
+
+полагаю примерно так:
+ yum clean all
+ yum update glibc\* (не обязательно для консольной среды)
+ yum update yum\* rpm\* pyth\*
+ yum clean all
+ yum update mkinitrd nash
+ yum update selinux\*
+ yum update
+ shutdown -r now 
+
+Спасибо! Получилось!
