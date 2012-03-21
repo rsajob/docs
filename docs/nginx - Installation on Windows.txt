@@ -1,22 +1,22 @@
-Установка и настройка nginx на Windows (как сервис)
+╨г╤Б╤В╨░╨╜╨╛╨▓╨║╨░ ╨╕ ╨╜╨░╤Б╤В╤А╨╛╨╣╨║╨░ nginx ╨╜╨░ Windows (╨║╨░╨║ ╤Б╨╡╤А╨▓╨╕╤Б)
 ============================================================
 
-  Скачиваем последнюю версию отсюда http://nginx.org/ru/download.html (на данный момент nginx/Windows-1.1.17)
-  Распаковываем архив в папку D:\Work\tools\web\ (должно получится D:\Work\tools\web\nginx-1.1.17)
+  ╨б╨║╨░╤З╨╕╨▓╨░╨╡╨╝ ╨┐╨╛╤Б╨╗╨╡╨┤╨╜╤О╤О ╨▓╨╡╤А╤Б╨╕╤О ╨╛╤В╤Б╤О╨┤╨░ http://nginx.org/ru/download.html (╨╜╨░ ╨┤╨░╨╜╨╜╤Л╨╣ ╨╝╨╛╨╝╨╡╨╜╤В nginx/Windows-1.1.17)
+  ╨а╨░╤Б╨┐╨░╨║╨╛╨▓╤Л╨▓╨░╨╡╨╝ ╨░╤А╤Е╨╕╨▓ ╨▓ ╨┐╨░╨┐╨║╤Г D:\Work\tools\web\ (╨┤╨╛╨╗╨╢╨╜╨╛ ╨┐╨╛╨╗╤Г╤З╨╕╤В╤Б╤П D:\Work\tools\web\nginx-1.1.17)
 
-Запуск как сервис
+╨Ч╨░╨┐╤Г╤Б╨║ ╨║╨░╨║ ╤Б╨╡╤А╨▓╨╕╤Б
 =====================
-  Для этого нам понадобится обёртка winsw, она позволяет запускать любое консольное приложение Windows как сервис.
-  Официальный сайт: http://kenai.com/projects/winsw/pages/Home
+  ╨Ф╨╗╤П ╤Н╤В╨╛╨│╨╛ ╨╜╨░╨╝ ╨┐╨╛╨╜╨░╨┤╨╛╨▒╨╕╤В╤Б╤П ╨╛╨▒╤С╤А╤В╨║╨░ winsw, ╨╛╨╜╨░ ╨┐╨╛╨╖╨▓╨╛╨╗╤П╨╡╤В ╨╖╨░╨┐╤Г╤Б╨║╨░╤В╤М ╨╗╤О╨▒╨╛╨╡ ╨║╨╛╨╜╤Б╨╛╨╗╤М╨╜╨╛╨╡ ╨┐╤А╨╕╨╗╨╛╨╢╨╡╨╜╨╕╨╡ Windows ╨║╨░╨║ ╤Б╨╡╤А╨▓╨╕╤Б.
+  ╨Ю╤Д╨╕╤Ж╨╕╨░╨╗╤М╨╜╤Л╨╣ ╤Б╨░╨╣╤В: http://kenai.com/projects/winsw/pages/Home
 
-  Создаём папку 
+  ╨б╨╛╨╖╨┤╨░╤С╨╝ ╨┐╨░╨┐╨║╤Г 
   mkdir D:\Work\tools\web\nginx-1.1.17\nginx_service
   cd D:\Work\tools\web\nginx-1.1.17\nginx_service
 
-  Скачиваеь winsw-1.9-bin.exe с официального сайта либо с https://raw.github.com/rsajob/docs/master/tools/winsw/winsw-1.9-bin.exe
-  Перемиеновываем winsw-1.9-bin.exe в тпштч_service.exe и ложим его созданную папку (D:\Work\tools\web\nginx-1.1.17\nginx_service)
+  ╨б╨║╨░╤З╨╕╨▓╨░╨╡╤М winsw-1.9-bin.exe ╤Б ╨╛╤Д╨╕╤Ж╨╕╨░╨╗╤М╨╜╨╛╨│╨╛ ╤Б╨░╨╣╤В╨░ ╨╗╨╕╨▒╨╛ ╤Б https://raw.github.com/rsajob/docs/master/tools/winsw/winsw-1.9-bin.exe
+  ╨Я╨╡╤А╨╡╨╝╨╕╨╡╨╜╨╛╨▓╤Л╨▓╨░╨╡╨╝ winsw-1.9-bin.exe ╨▓ ╤В╨┐╤И╤В╤З_service.exe ╨╕ ╨╗╨╛╨╢╨╕╨╝ ╨╡╨│╨╛ ╤Б╨╛╨╖╨┤╨░╨╜╨╜╤Г╤О ╨┐╨░╨┐╨║╤Г (D:\Work\tools\web\nginx-1.1.17\nginx_service)
 
-  В этой же папке создаём файл nginx_service.xml со следующим содержанием
+  ╨Т ╤Н╤В╨╛╨╣ ╨╢╨╡ ╨┐╨░╨┐╨║╨╡ ╤Б╨╛╨╖╨┤╨░╤С╨╝ ╤Д╨░╨╣╨╗ nginx_service.xml ╤Б╨╛ ╤Б╨╗╨╡╨┤╤Г╤О╤Й╨╕╨╝ ╤Б╨╛╨┤╨╡╤А╨╢╨░╨╜╨╕╨╡╨╝
    <service>
      <id>nginx</id>
      <name>nginx</name>
@@ -29,26 +29,26 @@
      <stopargument>-p D:\Work\tools\web\nginx-1.1.17 -s quit</stopargument>
    </service>
   
-  Под админом вызываем:
+  ╨Я╨╛╨┤ ╨░╨┤╨╝╨╕╨╜╨╛╨╝ ╨▓╤Л╨╖╤Л╨▓╨░╨╡╨╝:
   nginx_service.exe install
   nginx_service.exe start
 
-  В случае если сервис не стартанул смотрим ошибки в логе
+  ╨Т ╤Б╨╗╤Г╤З╨░╨╡ ╨╡╤Б╨╗╨╕ ╤Б╨╡╤А╨▓╨╕╤Б ╨╜╨╡ ╤Б╤В╨░╤А╤В╨░╨╜╤Г╨╗ ╤Б╨╝╨╛╤В╤А╨╕╨╝ ╨╛╤И╨╕╨▒╨║╨╕ ╨▓ ╨╗╨╛╨│╨╡
   D:\Work\tools\web\php_5.3.10\php-cgi_service\php-cgi_service.wrapper.log 
 
-  Другие комманды работы с winsw:
+  ╨Ф╤А╤Г╨│╨╕╨╡ ╨║╨╛╨╝╨╝╨░╨╜╨┤╤Л ╤А╨░╨▒╨╛╤В╤Л ╤Б winsw:
     To install a service, run myapp.exe install
     To start a service, run myapp.exe start
     To stop a service, run myapp.exe stop
     To restart a service, run myapp.exe restart
     To uninstall a service, run myapp.exe uninstall
-    Доп инфа http://kenai.com/projects/winsw/pages/Home
+    ╨Ф╨╛╨┐ ╨╕╨╜╤Д╨░ http://kenai.com/projects/winsw/pages/Home
   
-Конфигурирование
+╨Ъ╨╛╨╜╤Д╨╕╨│╤Г╤А╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡
 =========================
 
-  Переименовываем файл conf\nginx.conf в conf\nginx.conf.old
-  Создаём новый файл conf\nginx.conf со следующим содержанием:
+  ╨Я╨╡╤А╨╡╨╕╨╝╨╡╨╜╨╛╨▓╤Л╨▓╨░╨╡╨╝ ╤Д╨░╨╣╨╗ conf\nginx.conf ╨▓ conf\nginx.conf.old
+  ╨б╨╛╨╖╨┤╨░╤С╨╝ ╨╜╨╛╨▓╤Л╨╣ ╤Д╨░╨╣╨╗ conf\nginx.conf ╤Б╨╛ ╤Б╨╗╨╡╨┤╤Г╤О╤Й╨╕╨╝ ╤Б╨╛╨┤╨╡╤А╨╢╨░╨╜╨╕╨╡╨╝:
 
   #-----------------------------------------------------------------
     worker_processes  1;
@@ -76,10 +76,10 @@
     }
   #-----------------------------------------------------------------
 
-  В папке D:/Work/projects/web/sites-conf/ в данном случае должны лежать 
-  файлы конфигурации (*.conf) конкртеных виртульных серверов
+  ╨Т ╨┐╨░╨┐╨║╨╡ D:/Work/projects/web/sites-conf/ ╨▓ ╨┤╨░╨╜╨╜╨╛╨╝ ╤Б╨╗╤Г╤З╨░╨╡ ╨┤╨╛╨╗╨╢╨╜╤Л ╨╗╨╡╨╢╨░╤В╤М 
+  ╤Д╨░╨╣╨╗╤Л ╨║╨╛╨╜╤Д╨╕╨│╤Г╤А╨░╤Ж╨╕╨╕ (*.conf) ╨║╨╛╨╜╨║╤А╤В╨╡╨╜╤Л╤Е ╨▓╨╕╤А╤В╤Г╨╗╤М╨╜╤Л╤Е ╤Б╨╡╤А╨▓╨╡╤А╨╛╨▓
 
-Пример конфигурации обычного php сервера
+╨Я╤А╨╕╨╝╨╡╤А ╨║╨╛╨╜╤Д╨╕╨│╤Г╤А╨░╤Ж╨╕╨╕ ╨╛╨▒╤Л╤З╨╜╨╛╨│╨╛ php ╤Б╨╡╤А╨▓╨╡╤А╨░
 ---------------------------------------------------
     server {
         listen      80;
@@ -110,7 +110,7 @@
     }
 
 
-Пример конфигурации сервера на основе limb3
+╨Я╤А╨╕╨╝╨╡╤А ╨║╨╛╨╜╤Д╨╕╨│╤Г╤А╨░╤Ж╨╕╨╕ ╤Б╨╡╤А╨▓╨╡╤А╨░ ╨╜╨░ ╨╛╤Б╨╜╨╛╨▓╨╡ limb3
 ---------------------------------------------------
     server {
         listen       	80;
@@ -137,6 +137,3 @@
             include        fastcgi_params;
         }
     }
-
-
-
