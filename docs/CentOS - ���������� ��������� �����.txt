@@ -1,6 +1,6 @@
-Отключение логов
+РћС‚РєР»СЋС‡РµРЅРёРµ Р»РѕРіРѕРІ
 
-    # чтобы не работала команда last
+    # С‡С‚РѕР±С‹ РЅРµ СЂР°Р±РѕС‚Р°Р»Р° РєРѕРјР°РЅРґР° last
     # The files wtmp and btmp might not be found. The system only logs information in these files if they are
     #       present.  This  is  a  local configuration issue. If you want the files to be used, they can be created
     #       with a simple touch(1) command (for example, touch /var/log/wtmp).
@@ -9,7 +9,7 @@
 
     # vim /etc/ssh/sshd_config
     LogLevel QUIET
-	# (vim: режим редактирования "i", сохранить и выход ":wq" http://www.instanceof.ru/linux/vim/step-by-step)
+	# (vim: СЂРµР¶РёРј СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ "i", СЃРѕС…СЂР°РЅРёС‚СЊ Рё РІС‹С…РѕРґ ":wq" http://www.instanceof.ru/linux/vim/step-by-step)
 
 
     /etc/init.d/sshd restart

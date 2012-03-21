@@ -1,2 +1,2 @@
-Примеры использования mod_rewrite:
+РџСЂРёРјРµСЂС‹ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ mod_rewrite:
 http://www.beget.ru/art10.html

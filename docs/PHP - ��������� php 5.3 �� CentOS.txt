@@ -1,10 +1,10 @@
-# Что установлено
+# Р§С‚Рѕ СѓСЃС‚Р°РЅРѕРІР»РµРЅРѕ
 yum list installed | grep php
 
-# Пакет приоритетов репозиториев
+# РџР°РєРµС‚ РїСЂРёРѕСЂРёС‚РµС‚РѕРІ СЂРµРїРѕР·РёС‚РѕСЂРёРµРІ
 yum install yum-priorities
 
-# Репозитории
+# Р РµРїРѕР·РёС‚РѕСЂРёРё
 rpm -Uvh http://download.fedora.redhat.com/pub/epel/5/i386/epel-release-5-4.noarch.rpm 
 rpm -Uvh http://dl.iuscommunity.org/pub/ius/stable/Redhat/5/i386/ius-release-1.0-6.ius.el5.noarch.rpm
 
@@ -19,13 +19,13 @@ pear channel-discover pear.phpunit.de
 pear install phpunit/PHPUnit
 
 
-# Настройка php-fpm
-vi /etc/php-fpm.conf либо vi /etc/php-fpm.d/www.conf
-# там меняем:
+# РќР°СЃС‚СЂРѕР№РєР° php-fpm
+vi /etc/php-fpm.conf Р»РёР±Рѕ vi /etc/php-fpm.d/www.conf
+# С‚Р°Рј РјРµРЅСЏРµРј:
 #   listen = /var/run/fastcgi_sock
 #   user = nginx
 #   group = webmaster
 
-# перезагрузка  php-fpm
+# РїРµСЂРµР·Р°РіСЂСѓР·РєР°  php-fpm
 /etc/init.d/php-fpm restart
 

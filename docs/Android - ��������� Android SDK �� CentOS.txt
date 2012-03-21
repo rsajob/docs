@@ -1,12 +1,12 @@
 
 ##########################################
-# Установка JRE 1.6
+# РЈСЃС‚Р°РЅРѕРІРєР° JRE 1.6
 yum list \*java-1\* | grep open
 yum install java-1.6.0-openjdk.x86_64
 yum install java-1.6.0-openjdk-devel.x86_64
 
 ##########################################
-# Установка Android на CentOS (http://www.stevebrookes.id.au/mediawiki/index.php/Installing_Android_on_CentOS)
+# РЈСЃС‚Р°РЅРѕРІРєР° Android РЅР° CentOS (http://www.stevebrookes.id.au/mediawiki/index.php/Installing_Android_on_CentOS)
 wget http://dl.google.com/android/android-sdk_r13-linux_x86.tgz
 gunzip android-sdk_r13-linux_x86.tgz
 tar xvf android-sdk_r13-linux_x86.tar 
@@ -20,10 +20,10 @@ vi /etc/profile.d
 	export PATH=$PATH:/opt/android-sdk/tools/
 
 ###########################################
-# Обновление Android SDK
+# РћР±РЅРѕРІР»РµРЅРёРµ Android SDK
 android update sdk --no-ui
 
-# путь к дополнительным инструментам
+# РїСѓС‚СЊ Рє РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рј РёРЅСЃС‚СЂСѓРјРµРЅС‚Р°Рј
 export PATH=$PATH:/opt/android-sdk/platform-tools/
 
 
