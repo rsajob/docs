@@ -1,0 +1,33 @@
+
+Отправить локальную ветку в удалённый репозиторий (связь между ними не создаётся):
+ git push origin local
+
+Отправить локальную ветку local в удалённый репозиторий и 
+автоматически привязать локальную ветку к удалённой (флаг -u)
+ git push -u origin local
+
+Чтобы привязать уже существующую локальную ветку ветку к удаленной:
+ git branch --set-upstream local origin/local
+
+Выкачиваем и отслеживаем ветку из удалённого репозитория
+ git checkout --track origin/local
+или
+ git checkout --track -b my-branch-name origin/my-branch-name
+
+Удаляем у себя ветку local:
+ git branch -D local
+
+Переходим на ветку master
+ git checkout master
+
+Создать новую ветку и переключится на неё
+ git branch new_branch 
+ git checkout new_branch
+либо сразу
+ git checkout -b new_branch
+
+Переименовать текущий бранч:
+git branch -m new_name
+
+Переименовать любой бранч:
+git branch -m current_name new_name
