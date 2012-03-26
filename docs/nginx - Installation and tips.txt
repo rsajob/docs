@@ -46,3 +46,19 @@ server
 #		proxy_set_header X-Front-Real-IP $remote_addr;
 	}
 }
+
+Nginx и memcached
+------------------------------------------------------
+Самый простой пример - проверяем есть ли страница в кеше и, если есть, достаем из кеша, иначе - делаем запрос к бекенду.
+server {
+  location / {
+    set $memcached_key $uri; # Ключ для проверки в memcached
+    memcached_pass     127.0.0.1:11211; # Параметры подключения
+    default_type       text/html; # Заголовок по умолчанию
+    error_page         404 = @fallback; # 404 - данные в кеше не найдены
+  }
+
+  location @fallback {
+    proxy_pass backend; # Бекенд
+  }
+}
