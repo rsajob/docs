@@ -1,0 +1,32 @@
+Установка memcached под Windows + расширение для PHP 5.3
+==========================================================
+
+Установка сервера memcached
+-----------------------------------------------
+
+1. Идем на www.splinedancer.com/memcached-win32 и скачиваем сам memcached в виде binaries.
+На данный момент последняя версия memcached 1.2.4 Win32 Beta Binaries (09.03.2008)
+
+2. Распаковываем архив на локальной машине в любую директорию, например D:\Work\tools\web\memcached\
+
+3. Для того, чтобы memcached работал как служба, нужно из директории, где установлен memcached, 
+открыть командную строку (cmd) и выполнить
+memcached.exe -d install
+memcached.exe -d start
+
+Установка асширения Memcached для PHP 5.3 на Windows
+-----------------------------------------------
+Cкачиваем php-расширениеб распаковываем и кладём dll в папку php\ext:
+php_memcache-2.2.6-5.3-vc9-x86.zip с — http://downloads.php.net/pierre/
+В php.ini подключаем dll - extension=php_memcache.dll
+
+Проверка работы:
+-----------------------------------------------
+<?php
+$memcache = new Memcache();
+$memcache->connect('127.0.0.1', 11211);
+$version = $memcache->getVersion();
+echo 'Ver - ' . $version;
+?>
+
+P.S. Если не работает то попробовать перезапустить службу вручную в панели Администрирования (у меня так было)
