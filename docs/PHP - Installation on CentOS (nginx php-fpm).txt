@@ -44,6 +44,18 @@ yum install nginx
 yum install php
 yum install php-fpm
 
+# Донастраиваем php.ini (находим эти строки и меняем)
+nano /etc/php.ini
+---------------------------------------------------
+max_execution_time = 1000;
+error_reporting = E_ALL | E_STRICT
+display_errors = On
+display_startup_errors = On
+track_errors = On
+html_errors = On
+date.timezone = "Europe/Moscow
+---------------------------------------------------
+
 # Настройка php-fpm
 nano /etc/php-fpm.d/www.conf
 ----------------------------------
@@ -239,6 +251,15 @@ yum install php-pecl-apc
 
 # XDebug
 yum install php-pecl-xdebug
+
+# Sqlite3
+yum install php-pdo
+
+# MySQL
+yum install mysql-server php-mysql.x86_64
+/usr/bin/mysqladmin -u root password 'root'
+chkconfig --levels 345 mysqld on
+/etc/init.d/mysqld start
 
 # Дополение 2 - Группы и пользователи unix (важно знать).  
 =========================================================
