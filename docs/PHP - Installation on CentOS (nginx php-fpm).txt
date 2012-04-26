@@ -225,8 +225,10 @@ netstat -tnlp | grep nginx
 # Смотрим слушает ли php-fpm порт /var/run/fastcgi_sock
 netstat -an | grep /var/run/fastcgi_sock
 
-# Проверяем (должна отдаться страница index.php "Welome, Nginx!")
+# Проверяем (должна отдаться страница index.html "Welome, Nginx!")
 wget http://127.0.0.1/
+cat index.html
+rm index.html
 
 # Создание нового сайта
 su srv
