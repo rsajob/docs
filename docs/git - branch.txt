@@ -1,4 +1,3 @@
-
 Отправить локальную ветку в удалённый репозиторий (связь между ними не создаётся):
  git push origin local
 
@@ -34,5 +33,6 @@ git branch -m current_name new_name
 
 # Добавление сабмодуля в проект (rsajob/limb.git)
 git submodule add git@github.com:rsajob/limb.git lib/limb
+
 # Вытаскиваем основную ветку разработки
 git checkout --track origin/devel
