@@ -1,6 +1,10 @@
 Установка php 5.4.0 + nginx php-fpm на CentOS 6.2
 =====================================
 
+# Смотрим версию CentOS
+cat /etc/redhat-release
+lsb_release
+
 # Что установлено
 yum list installed | grep php
 
@@ -262,6 +266,19 @@ yum install mysql-server php-mysql.x86_64
 /usr/bin/mysqladmin -u root password 'root'
 chkconfig --levels 345 mysqld on
 /etc/init.d/mysqld start
+
+===========================================================
+# Установка Java SUN
+===========================================================
+Идём на страницу закгузки http://java.com/ru/download/manual.jsp
+Берём ссылку на "Linux x64 RPM"
+
+cd /usr/src
+wget http://javadl.sun.com/webapps/download/AutoDL?BundleId=59622
+sh jre-6u*
+
+Проверка:
+java -version
 
 # Дополение 2 - Группы и пользователи unix (важно знать).  
 =========================================================
