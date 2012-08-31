@@ -1,0 +1,11 @@
+# Запуск shell
+adb shell
+
+#Установка приложений:
+# -r - переустановка существующего приложения с сохранением всех данных (кэш, настройки и т.п.)
+# -s - установка любого приложения сразу на SD-карту.
+adb install -s -r myapp.apk
+adb uninstall myapp.apk
+
+# Слить загрузки (которые нс sdcard) на комп
+adb pull /sdcard/download download
