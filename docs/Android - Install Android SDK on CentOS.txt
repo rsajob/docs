@@ -7,10 +7,10 @@ yum install java-1.6.0-openjdk-devel.x86_64
 
 ##########################################
 # Установка Android на CentOS (http://www.stevebrookes.id.au/mediawiki/index.php/Installing_Android_on_CentOS)
-wget http://dl.google.com/android/android-sdk_r13-linux_x86.tgz
-gunzip android-sdk_r13-linux_x86.tgz
-tar xvf android-sdk_r13-linux_x86.tar 
-mv android-sdk-linux_x86/ /opt/android-sdk
+wget http://dl.google.com/android/android-sdk_r18-linux.tgz
+gunzip android-sdk_r18-linux.tgz
+tar xvf android-sdk_r18-linux.tar 
+mv android-sdk-linux/ /opt/android-sdk
 chmod -R a+w /opt/android-sdk
 export PATH=$PATH:/opt/android-sdk/tools/
 
@@ -27,4 +27,20 @@ android update sdk --no-ui
 export PATH=$PATH:/opt/android-sdk/platform-tools/
 
 
+Установка android-apktool:
+=====================================
+wget http://android-apktool.googlecode.com/files/apktool-install-linux-r04-brut1.tar.bz2
+wget http://android-apktool.googlecode.com/files/apktool1.4.3.tar.bz2
+tar xvf apktool-install-linux-r04-brut1.tar.bz2
+tar xvf apktool1.4.3.tar.bz2
+rm apktool-install-linux-r04-brut1.tar.bz2
+rm apktool1.4.3.tar.bz2
+mv aapt /usr/bin
+mv apktool /usr/bin
+mv apktool.jar /usr/bin
+chmod 755 /usr/bin/aapt
+chmod 755 /usr/bin/apktool
 
+Возможно необходимые либы:
+libstdc++.i686
+zlib.i686
