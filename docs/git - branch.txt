@@ -52,3 +52,7 @@ git clone ... [your_project.git]
 Переходим в корень проекта и запускаем команду 
 git submodule update --init
 
+Если выдаёт ошибку Clone of 'git@github.com:rsajob/limb.git' into submodule path 'lib/limb' failed
+то надо в модулях поменять ссылки на Read-only версию
+git://github.com/rsajob/limb.git
+git config submodule.lib/limb.url git://github.com/rsajob/limb.git

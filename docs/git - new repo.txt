@@ -1,22 +1,23 @@
-Задача: На локале есть репозиторий, надо его перенести на сервер и этот репозиторий основным (origin).
+╨Ч╨░╨┤╨░╤З╨░: ╨Э╨░ ╨╗╨╛╨║╨░╨╗╨╡ ╨╡╤Б╤В╤М ╤А╨╡╨┐╨╛╨╖╨╕╤В╨╛╤А╨╕╨╣, ╨╜╨░╨┤╨╛ ╨╡╨│╨╛ ╨┐╨╡╤А╨╡╨╜╨╡╤Б╤В╨╕ ╨╜╨░ ╤Б╨╡╤А╨▓╨╡╤А ╨╕ ╤Н╤В╨╛╤В ╤А╨╡╨┐╨╛╨╖╨╕╤В╨╛╤А╨╕╨╣ ╨╛╤Б╨╜╨╛╨▓╨╜╤Л╨╝ (origin).
 =====================================================================
 
-# На сервер создаём чистый репозиторий:
+# ╨Э╨░ ╤Б╨╡╤А╨▓╨╡╤А ╤Б╨╛╨╖╨┤╨░╤С╨╝ ╤З╨╕╤Б╤В╤Л╨╣ ╤А╨╡╨┐╨╛╨╖╨╕╤В╨╛╤А╨╕╨╣:
 cd /home/user
 mkdir git
 cd git
 mkdir domain.com.git
 git init --bare
 
-# На локале:
+# ╨Э╨░ ╨╗╨╛╨║╨░╨╗╨╡:
 cd existing_git_repo
 git remote add origin user@host.biz:git/domain.com.git
 git push -u origin master
 
 
-Далее клонируем проект на продакшин сервер:
+╨Ф╨░╨╗╨╡╨╡ ╨║╨╗╨╛╨╜╨╕╤А╤Г╨╡╨╝ ╨┐╤А╨╛╨╡╨║╤В ╨╜╨░ ╨┐╤А╨╛╨┤╨░╨║╤И╨╕╨╜ ╤Б╨╡╤А╨▓╨╡╤А:
 new_site domain.com
 git clone user@host.biz:git/domain.com.git /home/user/domain.com/htdocs
+git clone srv@netlug.biz:git/cool-porn.com.git /home/srv/tst.cool-porn.com/htdocs
 cd /home/user/domain.com/htdocs
 mkdir var
 chmod 775 var
