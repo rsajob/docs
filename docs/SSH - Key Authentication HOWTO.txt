@@ -3,8 +3,8 @@
 
 На клиенте генерим пару ключей:
 %% ssh-keygen -C user@host
-При этом генерируется пара ключей которые по умолчанию лежат в .ssh/id_rsa  .ssh/id_rsa.pub
-Далее нужно добавить id_rsa.pub в .ssh/authorized_keys на сервере
+При этом генерируется пара ключей которые по умолчанию лежат в ~/.ssh/id_rsa  ~/.ssh/id_rsa.pub (для Win 7 ~ - C:/Users/username/)
+Далее нужно добавить публичный ключ id_rsa.pub на сервер в ~/.ssh/authorized_keys
 %% cd ~
 %% scp .ssh/id_rsa.pub user@host:id_rsa.pub
 заходим сначало на сервер user@host под паролем 
