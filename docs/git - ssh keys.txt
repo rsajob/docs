@@ -1,0 +1,71 @@
+Для того чтобы пше работал с github по ssh нужно 
+сгенерировать ключи и добавить публиыный кюч в свой аккаунт на github
+
+Генерация ключа:
+ssh-keygen -C "My key alias"
+"My key alias" - тут обычно user@host или email
+По умолчанию пара ключей кладутся в 
+~/.ssh/id_rsa  
+~/.ssh/id_rsa.pub (*сожержимое этого файла надо скопировать в акаунт github.com)
+(*для Win 7 ~ - C:/Users/username/)
+
+
+Несколько ssh ключей при работе с git.
+=====================================
+Например это необходимо если работать с несколькими акаунтами на github.com
+
+Суть в кратце: для ssh можно задать конфиг (файл ~/.ssh/config), в котором можно 
+переопределять хосты и назначать для каждого свой ключ. При этом при подключении 
+удалённого репозитория необходимо вместо gthub.com указать свой переопределённый 
+хост - ssh его схватит, подставит нужный ключ и нужный хост.
+Пример:
+
+Генерим ключи:
+ssh-keygen -C "myname@gmail.com" -f ~/.ssh/id_rsa.myname
+
+В файле ~/.ssh/config пишем:
+Host myname.github.com
+	HostName github.com
+	User git
+    IdentityFile ~/.ssh/id_rsa.myname
+
+Привязываем удалённый репозиторий:
+git remote add origin ssh://git@myname.github.com:myname/repo.git
+
+Или меняем URL существующего:
+git remote set-url origin git@myname.github.com:myname/repo.git
+
+
+Также об этом можно почитать тут:
+
+http://www.springloops.com/blog/git-config-for-mutiply-ssh-keys/
+Git config for mutiply SSH keys
+
+This manual, assumes that in directory .ssh you have more than one keypairs. Each key is associated with different Git user. For example, key ~/.ssh/id_rsa is associated with john.smith@springloops.com, while ~/.ssh/id_rsa1 belongs to joe.doe@springloops.com
+
+Creating another SSH key
+ When you create a keypair for the first time method ssh-keygen will use the default name (id_rsa). However, on each next use, we need to specify ssh keypair name:
+ssh-add ~/.ssh/idrsa1
+
+Configuring SSH keys
+ By default SSH uses the default SSH key (~/.ssh/id_rsa). Now we’re going to force it to use different key for another server. To do it, please edit ~/.ssh/config file:
+
+ # john smith
+ Host sls-user1
+ HostName slsapp.com
+ User sls
+ IdentityFile /Users/cmpname/.ssh/id_rsa
+ # joe doe
+ Host sls-user2
+ HostName slsapp.com
+ User sls
+ IdentityFile /Users/cmpname/.ssh/id_rsa1
+
+How to use the second key?
+ From now if you want work as John Smith you need to use following commands:
+git remote add jhon_orgin ssh://sls@sls-user1:1234/test/proj123.git
+ git clone ssh://sls@sls-user1:1234/test/proj123.git
+
+ and when as Joe Doe:
+git remote add jhon_orgin ssh://sls@sls-user2:1234/test/proj123.git
+ git clone ssh://sls@sls-user2:1234/test/proj123.git
