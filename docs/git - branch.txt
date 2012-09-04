@@ -1,20 +1,21 @@
 Отправить локальную ветку в удалённый репозиторий (связь между ними не создаётся):
- git push origin local
+ git push origin feature
 
-Отправить локальную ветку local в удалённый репозиторий и 
+Отправить локальную ветку feature в удалённый репозиторий и 
 автоматически привязать локальную ветку к удалённой (флаг -u)
- git push -u origin local
+ git push -u origin feature
 
 Чтобы привязать уже существующую локальную ветку ветку к удаленной:
- git branch --set-upstream local origin/local
+ git branch --set-upstream feature origin/feature
 
 Выкачиваем и отслеживаем ветку из удалённого репозитория
- git checkout --track origin/local
+ git checkout --track origin/feature
 или
  git checkout --track -b my-branch-name origin/my-branch-name
 
-Удаляем у себя ветку local:
- git branch -D local
+Удаляем ветку:
+git branch -d feature #В локальном репозитории
+git push origin :feature #В удалённом репозитории
 
 Переходим на ветку master
  git checkout master
