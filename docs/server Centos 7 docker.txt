@@ -1,0 +1,50 @@
+
+# Смотрим версию CentOS
+cat /etc/redhat-release
+
+# Добавляем пользователя и группу
+usermod -G webmaster srv
+
+# To create the docker group and add your user:
+usermod -aG docker srv
+cat /etc/group | grep docker
+
+# Устанавливаем docker как написано тут https://docs.docker.com/engine/installation/linux/centos/
+# Перелогиниваемся, затем docker должен работать без sudo, проверяем
+docker run hello-world
+
+# Добавляем свой ssh ключ на сервер netlug.biz чтобы git мог забирать данные оттуда
+ssh-keygen -C srv@centos7
+ssh-copy-id -i ~/.ssh/id_rsa.pub srv@netlug.biz
+
+
+
+
+#  Проект gameclub
+
+# Перебрасываем базу
+# ну том серере где беза делаем дамп:
+mongodump --db gameclub_apps
+
+# на сервере куда надо закинуть её в контенер:
+mkdir ~/mongo_dump
+scp -r srv@netlug.biz:~/mongo_dump/dump ~/mongo_dump
+docker exec mongo1 mkdir /tmp/mongo_dump
+docker cp ~/mongo_dump mongo1:/tmp
+# Заходим в контейнер и делаем restore
+docker exec -it mongo1 bash
+mongorestore --db gameclub_apps /tmp/mongo_dump/dump/gameclub_apps
+
+# Готовим проект
+
+mkdir ~/projects/game-club
+git clone srv@git.netlug.biz:git/gameclub/slim.gameclub.git .
+
+# Сборка
+docker run --rm -v `pwd`:/app -v /home/srv/.ssh:/root/.ssh composer/composer install
+docker run --rm -v `pwd`:/data -v $HOME/.node-cache:/cache leanlabs/npm-builder npm install
+docker run --rm -v `pwd`:/data -v $HOME/.node-cache:/cache leanlabs/npm-builder bower install --allow-root
+docker run --rm -v `pwd`:/data -v $HOME/.node-cache:/cache leanlabs/npm-builder grunt
+
+
+

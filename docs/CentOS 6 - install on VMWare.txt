@@ -1,0 +1,76 @@
+Устанваливаем CentOS 6.2 на VMWare, 
+тип установки выбираем - minimal server
+
+Настройка сети
+=============================
+Подробнее тут:
+http://www.manageserver.ru/2009/09/23/как-настроить-сеть-в-linux-на-примере-centos-5/
+http://www.creator969.ru/linux/centos-nastroika-seti
+=============================
+
+# Указываем DNS сервера google
+nano /etc/resolv.conf
+--------------------------
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+--------------------------
+
+# Основная конфигурация сти
+nano /etc/sysconfig/network
+--------------------------
+NETWORKING=yes
+HOSTNAME=minisrv
+GATEWAY=192.168.245.2
+--------------------------
+
+# Настройка интерфейса eth0 (Виртуальный роутер VMWare NAT)
+nano /etc/sysconfig/network-scripts/ifcfg-eth0
+--------------------------
+DEVICE=eth0
+HWADDR= 00-19-DB-AD-19-99
+IPADDR=192.168.245.200
+NETMASK=255.255.255.0
+BROADCAST=192.168.245.255
+GATEWAY=192.168.245.2
+ONBOOT=yes
+DNS1=8.8.8.8
+DNS2=8.8.4.4
+--------------------------
+
+# Статический маршрут для интерфейса (сохраняется при перезагрузке ОС):
+nano /etc/sysconfig/network-scripts/route-eth0
+--------------------------
+default via 192.168.245.2
+--------------------------
+
+# Статический маршрут для интерфейса (не сохраняется при перезагрузке ОС):
+route add -net default gw 192.168.245.2
+
+# просмотр маршрутов
+route
+--------------------------
+192.168.245.0   *               255.255.255.0   U     1      0        0 eth0
+default         192.168.245.2   0.0.0.0         UG    0      0        0 eth0
+--------------------------
+
+# Перезапуск всех интерфейсов (или):
+service network restart 
+/etc/init.d/network restart
+
+# Проверка конфигурации интерфейса:
+ifconfig или ip a
+
+# Выключение/перезагрузка (the -h option halts the machine, and the -r option reboots)
+/sbin/shutdown -h now
+/sbin/shutdown -r now
+
+# заход по ssh с винды через putty
+putty -ssh -l root -pw 123456 192.168.245.200
+
+# Установка VMWare Tools
+==================================
+mkdir /mnt/cdrom 
+mount /dev/cdrom /mnt/cdrom 
+tar -C /tmp -zxvf /mnt/cdrom/VMwareTools-*.tar.gz
+cd /tmp/vmware-tools-distrib
+./vmware-install.pl

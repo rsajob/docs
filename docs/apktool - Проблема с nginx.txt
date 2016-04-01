@@ -1,0 +1,105 @@
+Целый день мучался сегодня с этим apktool. Но нашёл решение, запиши это в свою шпоргалку.
+Я в тут в кратце опишу проблему и решение, а внизу подробно всё расписал.
+
+Проблема: на новом сервере при вызове apktool через nginx (через exec в php) оно не работало. 
+Решение проблемы:
+chown nginx:nginx -R /var/cache/nginx
+Краткое описание:
+apktool в процессе раблты создаёт временный файл в кактлоге пользователя, почемуто на новых серверах домашний каталог 
+пользоватлея nginx стал /var/cache/nginx, а на старых был /var/lib/nginx. На старом сервер всё работает.
+Так вот права на папку /var/cache/nginx стояли root:root почемуто, и польователь nginx ничёго не мог туда записать. 
+Дальше можеш не читать в принцапи, но на всякий случай отправлю. Просто в процессе написания тебе письма пытался решить 
+проблему и получилось.
+
+========================
+
+Цель: есть инструмент apktool для декомпиляции apk файлов.
+Устанавливал его так:
+su
+mkdir /usr/src/apktool
+cd /usr/src/apktool
+wget http://android-apktool.googlecode.com/files/apktool-install-linux-r04-brut1.tar.bz2
+wget http://android-apktool.googlecode.com/files/apktool1.4.3.tar.bz2
+tar xvf apktool-install-linux-r04-brut1.tar.bz2
+tar xvf apktool1.4.3.tar.bz2
+rm apktool-install-linux-r04-brut1.tar.bz2
+rm apktool1.4.3.tar.bz2
+mv aapt /usr/bin
+mv apktool /usr/bin
+mv apktool.jar /usr/bin
+chmod 755 /usr/bin/aapt
+chmod 755 /usr/bin/apktool
+
+
+Использовать так:
+apktool d -s -f sample.apk out_dir
+
+Проблема в том, что когда я его использую из коммандной строки под пользователем srv, всё работает. 
+Мне надо это делать вызовом из php при помощи exec. И вот на одном сервере (старом) это работает, а на новом нет. 
+Данные к серверам
+1) там где работает:
+95.211.129.30
+
+Проверка работы через php (от пользователя srv работает):
+cd /home/srv/tst.netlug.biz/rp/web/apktest
+php run.php
+
+Проверка через apktool напрямую (от пользователя srv рабоатет):
+apktool d -s -f coolporn.apk out
+
+При вызове от пользователя nginx
+sudo -u nginx apktool d -s -f coolporn.apk out
+или
+sudo -u nginx php run.php
+
+выдаёт ошибку:
+/usr/bin/apktool: line 42: cd: /home/srv/tst.netlug.biz/rp/web/apktest: Permission denied
+Input file (coolporn.apk) was not found or was not readable.
+
+НО вот самое интересное, что через браузер работает:
+http://tst.netlug.biz/apktest/run.php
+
+2) Теперь другой сервер:
+95.211.77.141
+
+Проверка работы через php (от пользователя srv работает):
+cd /home/srv/rp16.netlug.biz/htdocs/web/apktest
+php run.php
+
+Проверка через apktool напрямую (от пользователя srv рабоатет):
+apktool d -s -f coolporn.apk out
+
+При вызове от пользователя nginx
+sudo -u nginx apktool d -s -f coolporn.apk out
+или
+sudo -u nginx php run.php
+
+выдаёт такуюже ошибку как и на первом сервере:
+/usr/bin/apktool: line 42: cd: /home/srv/rp16.netlug.biz/htdocs/web/apktest: Permission denied
+Input file (coolporn.apk) was not found or was not readable.
+
+И САМОЕ ВАЖНОЕ, что через браузер НЕ работает:
+http://rp16.netlug.biz/apktest/run.php
+
+
+Интересные моменты:
+
+apttool при работе создаёт временный файл в корневом каталоге пользователя ~/apktool/framework/1.apk 
+на рабочем сервер, при вызове через web этот файл создаётся в 
+/var/lib/nginx/apktool/framework/1.apk
+если вызвать комманду от имени srv то файл создастся в 
+/home/srv/apktool/framework/1.apk
+
+На нерабочем сервере этот файл нигде не создаётся, вероятно гдето в этом проблема.
+
+Комманда finger nginx выдаёт:
+на рабочем сервере
+Directory: /var/lib/nginx               Shell: /bin/false
+на не рабочем:
+Directory: /var/cache/nginx             Shell: /sbin/nologin
+
+Решение проблемы:
+Из-за того что владельцем корневой папки пользователя nginx /var/cache/nginx был пользователь root:root
+то apktool не мог записать туда свой файл.
+Решение проблемы: 
+chown nginx:nginx -R /var/cache/nginx

@@ -4,15 +4,28 @@
 Настройка сети
 =============================
 Подробнее тут:
-http://www.manageserver.ru/2009/09/23/как-настроить-сеть-в-linux-на-примере-centos-5/
 http://www.creator969.ru/linux/centos-nastroika-seti
 =============================
 
-# Указываем DNS сервера
+# Полезная штука bash-completion (http://blog.acmenet.ru/2016/01/01/centos-7-2-install/)
+yum -y install bash-completion
+
+### Имя хоста (hostname) (подробно тут http://val-khmyrov.blogspot.ru/2015/11/blog-post.html)
+hostnamectl set-hostname centos7
+
+# ifconfig по умолчанию в Centos 7 нет, надо поставить
+# Установим пакет net-tools
+yum -y install net-tools.x86_64
+
+Чтобы установить htop надо добавить репозиторий 
+yum install epel-release
+yum install htop
+
+# Указываем DNS сервера google
 nano /etc/resolv.conf
 --------------------------
-nameserver 91.144.160.3
-nameserver 91.144.162.5
+nameserver 8.8.8.8
+nameserver 8.8.4.4
 --------------------------
 
 # Основная конфигурация сти
@@ -33,8 +46,8 @@ NETMASK=255.255.255.0
 BROADCAST=192.168.245.255
 GATEWAY=192.168.245.2
 ONBOOT=yes
-DNS1=91.144.160.3
-DNS2=91.144.162.5
+DNS1=8.8.8.8
+DNS2=8.8.4.4
 --------------------------
 
 # Статический маршрут для интерфейса (сохраняется при перезагрузке ОС):

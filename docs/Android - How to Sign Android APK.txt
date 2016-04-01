@@ -1,2 +1,5 @@
 keytool -genkey -v -keystore my-release-key.keystore -alias alias_name -keyalg RSA -validity 10000
 jarsigner -keystore my-release-key.keystore test.apk alias_name
+
+
+keytool -genkey -v -keystore ks2.keystore -alias ks2 -keyalg RSA -validity 10000

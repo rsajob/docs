@@ -1,0 +1,447 @@
+Установка php 5.3.x + nginx php-fpm на CentOS 6.2
+=====================================
+
+# Смотрим версию CentOS
+cat /etc/redhat-release
+lsb_release
+
+# Комманды yum http://www.cyberciti.biz/faq/rhel-centos-fedora-linux-yum-command-howto/
+# http://wiki.russianfedora.ru/index.php/Работа_с_Yum
+
+# Что установлено
+yum list installed | grep php
+
+# Пакет приоритетов репозиториев
+yum install yum-priorities
+
+# Репозитории (ищем тут нужный http://download.fedoraproject.org/pub/epel/6/x86_64/)
+rpm -Uvh http://download.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-5.noarch.rpm
+
+# Репозитории remi (в нём php 5.3.10)
+rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
+
+# Ещё можно так установить репозиторий
+su -
+cd /etc/yum.repos.d
+wget http://rpms.famillecollet.com/enterprise/remi.repo
+
+# Включаем репозиторий remi (обычно отключён по умолчанию)
+# Если хотим всё самое новое, например php-5.4, то включаем также репозиторий remi-test
+nano /etc/yum.repos.d/remi.repo
+------------------------------------------------------------------------------------
+enabled=1
+----------------------------------------------------------------------------------
+
+# Добавляем репозиторий Nginx http://wiki.nginx.org/Install:
+nano /etc/yum.repos.d/nginx.repo
+----------
+[nginx]
+name=nginx repo
+baseurl=http://nginx.org/packages/centos/$releasever/$basearch/
+gpgcheck=0
+enabled=1
+----------
+
+# Смотрим какие доступны репозитории (надо remi и nginx)
+yum repolist
+
+# Добавляем пользователя и группу
+groupadd webmaster
+useradd -G webmaster srv
+# или usermod -G webmaster srv
+
+# Устанавливаем nginx
+yum install nginx
+
+# Чтобы проверить параметры сборки nginx можно вызвать коммнду
+nginx -V
+nginx -v # покажет только версию
+# нужно удостоверится что пользователь nginx может писать в свою работчую папку
+# для этого следующей коммандой можно посмотреть домашний каталог пользователя
+finger nginx
+# например это /var/cache/nginx - удостоверьтесь, что владельцем этого каталога 
+# является пользователь nginx
+chown nginx:nginx -R /var/cache/nginx
+
+# Устанавливаем php
+yum install php
+yum install php-fpm
+
+Пакеты которые были установлены у меня (если нужно удалить php)
+yum remove php-common php-fpm php-devel php-mbstring php-pecl-apc php-pecl-igbinary php-cli php-mysqlnd php-soap php-pear php-pecl-xdebug php-pecl-zip php-pdo php-xml php-pecl-mongo php-pecl-jsonc-devel php-gd php-redis php-pecl-jsonc
+
+
+# Донастраиваем php.ini (находим эти строки и меняем)
+nano /etc/php.ini
+---------------------------------------------------
+max_execution_time = 1000;
+error_reporting = E_ALL | E_STRICT
+display_errors = On
+display_startup_errors = On
+track_errors = On
+html_errors = On
+date.timezone = "Europe/Moscow
+---------------------------------------------------
+
+# Настройка php-fpm
+nano /etc/php-fpm.d/www.conf
+----------------------------------
+listen = /var/run/fastcgi_sock
+listen.mode = 0666
+user = nginx
+group = webmaster
+----------------------------------
+
+# Настройка папки сессий
+chown root:webmaster -R /var/lib/php/session
+chmod u=rwX,g=srwX,o= -R /var/lib/php/session
+
+# Перезагрузка  nginx и php-fpm
+/etc/init.d/nginx restart
+/etc/init.d/php-fpm restart
+
+# Добавляем в автозапуск php-fpm и nginx
+chkconfig --levels 345 php-fpm on
+chkconfig --levels 235 nginx on
+
+# Открыdftv в файрволе порт 80
+iptables -I INPUT -p tcp --dport 80 -m state --state NEW -j ACCEPT
+iptables-save > /etc/sysconfig/iptables
+chkconfig iptables on
+
+# Настройка 
+==========================================
+
+# Выставляем группу для домашней папки
+chown srv:webmaster -R /home/srv
+chmod 750 /home/srv
+
+mkdir /home/srv/bin
+chown srv:webmaster -R /home/srv/bin
+
+# Настриваем конфиг nginx
+nano /etc/nginx/nginx.conf
+-------------------------------------------
+user  nginx webmaster;
+worker_processes  10;
+worker_rlimit_nofile 100000;
+
+error_log   /var/log/nginx/error.log;
+#error_log  /var/log/nginx/error.log  notice;
+#error_log  /var/log/nginx/error.log  info;
+
+pid        /var/run/nginx.pid;
+
+events {
+    worker_connections  2048;
+    use epoll;
+}
+
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  /var/log/nginx/access.log  main;
+
+    sendfile        on;
+    tcp_nopush      on;
+    tcp_nodelay     on;
+    server_tokens   off;
+    gzip            on;
+    gzip_static     on;
+    gzip_comp_level 5;
+    gzip_min_length 1024;
+    keepalive_timeout  65;
+
+    # Load config files from the /etc/nginx/conf.d directory
+    include /etc/nginx/conf.d/*.conf;
+    include /etc/nginx/sites-enabled/*.conf;
+}
+---------------------------------------------
+
+# Скрипт создания нового сайта
+nano /home/srv/bin/new_site
+-------------------------------------------
+#!/bin/sh
+SITENAME=$1
+
+if [ -z $SITENAME ]; then 
+	echo "Please enter site name! I.e.: $ new_site www.mydomain.com"
+	exit;
+fi
+
+mkdir -p ~/$SITENAME/www
+
+chown srv:webmaster -R ~/$SITENAME
+chmod u=rwX,g=srwX,o= -R ~/$SITENAME
+
+mkdir -p ~/logs/$SITENAME
+chown srv:webmaster -R ~/logs/$SITENAME
+chmod u=rwX,g=srwX,o= -R ~/logs/$SITENAME
+
+sed -e"s/\[\[some_site\]\]/$SITENAME/g" ~/sites-conf/template_conf > ~/sites-conf/${SITENAME}.conf
+-------------------------------------------
+
+# Выставляем права
+chown srv:webmaster /home/srv/bin/new_site
+chmod 750 /home/srv/bin/new_site
+
+# Папка конфигураций сайтов
+mkdir /etc/nginx/sites-enabled
+chown root:webmaster -R /etc/nginx/sites-enabled
+chmod u=rwX,g=srwX,o= -R /etc/nginx/sites-enabled
+
+# Делаем символическую ссылку в домашнем каталоге
+ln -s /etc/nginx/sites-enabled /home/srv/sites-conf
+
+# Шаблон конфигурации сайта (предназначен для limb3 web_app, но можно изменить после создания сайта)
+touch /etc/nginx/sites-enabled/template_conf
+chown srv:webmaster /etc/nginx/sites-enabled/template_conf
+chmod 664 /etc/nginx/sites-enabled/template_conf
+nano /etc/nginx/sites-enabled/template_conf
+---------------------------------------------------
+server {
+    server_name [[some_site]];
+
+    index index.php;
+    root       /home/srv/[[some_site]]/www;
+
+    access_log /home/srv/logs/[[some_site]]/nginx.access.log;
+    error_log  /home/srv/logs/[[some_site]]/nginx.error.log notice;
+
+    fastcgi_buffers 16 300k;
+
+    location /
+    {
+		if (!-e $request_filename) 
+		{
+		    rewrite ^(.*)$ /index.php last;
+		}
+    }
+
+    location ~ \.php$ 
+    {
+        fastcgi_pass   unix:/var/run/fastcgi_sock;
+        fastcgi_index  index.php;
+        fastcgi_param  SCRIPT_FILENAME  $document_root/$fastcgi_script_name;
+        include        fastcgi_params;
+    }
+}
+---------------------------------------------------
+
+Настройка sudo
+
+под рутом 
+vi /etc/sudoers
+
+в конец добавляем:
+
+----------------------------------------------------
+srv ALL=NOPASSWD: /etc/init.d/nginx reload
+srv ALL=(nginx) NOPASSWD: ALL
+srv ALL=NOPASSWD: /root/bin/fantom_rights
+srv ALL=NOPASSWD: /usr/sbin/addcron
+srv ALL=NOPASSWD: /etc/init.d/crond reload
+----------------------------------------------------
+
+# Настройка автообновления времяни и зон
+==========================================
+# Улучшенный скрипт, вообще ничего не спрашивает, все вроде делает правильно
+# Обновляем пакет с таймзонами (там должна быть актуальная московская ТЗ)
+
+yum -y -q install tzdata ntp
+
+# Настраиваем московскую ТЗ
+
+mv -f /etc/localtime ~/localtime.orig
+ln -s /usr/share/zoneinfo/Europe/Moscow /etc/localtime
+
+# Корректируем время вручную по одному из серверов
+/etc/init.d/ntpd stop
+/sbin/ntpdate 0.centos.pool.ntp.org 1.centos.pool.ntp.org 2.centos.pool.ntp.org
+/etc/init.d/ntpd start
+
+# Проставляем ntpd в автозапуск (на всякий случай)
+/sbin/chkconfig --levels 345 ntpd on
+
+# Устанавливаем и проверяем системное время
+/sbin/hwclock --systohc
+/sbin/hwclock
+
+
+# Проверка
+===========================
+
+# Перезагружаем машину
+/sbin/shutdown -r now
+/etc/init.d/nginx stop
+
+# Смотрим процессы nginx
+ps -A | grep nginx
+
+# Смотрим процессы php-fpm
+ps -A | grep php
+
+# Смотрим кто какие порты слушает (nginx 80)
+netstat -tnlp | grep nginx
+
+# Смотрим слушает ли php-fpm порт /var/run/fastcgi_sock
+netstat -an | grep /var/run/fastcgi_sock
+
+# Проверяем (должна отдаться страница index.html "Welome, Nginx!")
+wget http://127.0.0.1/ -q -O -
+
+# Создание нового сайта
+su srv
+~/bin/new_site example.com
+
+# Перезагрузка nginx
+sudo /etc/init.d/nginx reload
+
+
+# Дополение 1 - Установка дополнительных инструментов. 
+=========================================================
+
+# PHPUnit
+yum install php-pear php-soap php-pdo php-xml
+pear channel-discover pear.phpunit.de
+pear channel-discover  pear.symfony-project.com
+pear remote-list -c phpunit
+pear install phpunit/PHPUnit
+pear install --alldeps --force phpunit/PHPUnit
+
+# APC
+yum install php-pecl-apc
+
+# XDebug
+yum install php-pecl-xdebug
+
+# Sqlite3
+yum install php-pdo
+
+# MySQL
+yum install mysql-server php-mysql.x86_64
+/usr/bin/mysqladmin -u root password 'root'
+chkconfig --levels 345 mysqld on
+/etc/init.d/mysqld start
+
+===========================================================
+# Установка JRE (Лучше JDK... описание ниже)
+===========================================================
+Идём на страницу закгузки http://java.com/ru/download/manual.jsp
+Берём ссылку на "Linux x64 RPM"
+
+# Установка:
+cd /usr/src
+wget http://javadl.sun.com/webapps/download/AutoDL?BundleId=59622
+sh jre-6u*
+
+# Проверка:
+java -version
+
+# Удаление:
+yum remove jre
+
+===========================================================
+# Установка JRE (Лучше JDK... описание ниже)
+===========================================================
+Идём на страницу закгузки http://www.oracle.com/technetwork/java/javase/downloads/index.html
+Скачиваем куда нибудь например jdk-6u32-linux-x64-rpm.bin (дучше на какой нибудь сервер чтобы 
+потом взять прямую ссылку для wget)
+
+# Установка:
+cd /usr/src
+wget http://myserver.com/jdk-6u32-linux-x64-rpm.bin
+sh jdk-6u*
+
+# Проверка:
+java -version
+
+# Удаление:
+yum remove jdk
+
+/usr/sbin/alternatives --install /usr/bin/jarsigner jarsigner /usr/java/jdk1.6.0_32/bin/jarsigner 100
+
+# Как добавить в $PATH путь для всех пользователей
+=========================================================
+в /etc/profile добавляем
+
+PATH=$PATH:/new/path/ 
+export PATH
+
+# Дополение 2 - Группы и пользователи unix (важно знать).  
+=========================================================
+Допустим мы работаем под пользователем srv и его рабочий каталог /home/srv
+Нужно создать группу webmaster
+groupadd webmaster
+
+и добавить в неё пользователя srv
+usermod -G webmaster srv
+
+Допустим сайты будут распогогаться в папках 
+~/site1.com
+~/site2.com
+~/$SITENAME
+... и т.д.
+
+Нужно чтобы nginx имел доступ к этим папкам, для этого нужно:
+1) Установить пользователя и группу для этой папки:
+chown srv:webmaster -R ~/$SITENAME
+
+2) Сделать так чтобы все новые файлы и папки имели туже группу webmaster, которая она 
+   будет устанавливаться автоматом при создании новых файлов и папок
+chmod u=rwX,g=srwX,o= -R ~/$SITENAME
+
+!!! орабтить внимание на g=srwX - тут выставляется бит (s) - SGID (Set Group ID - бит смены идентификатора группы). 
+Это делается для того чтобы все файлы и папки созданные внутри этого каталога имели по умолчанию группу 
+webmaster (т.е. группу родительской папки), а не группу пользователя который их создал (т.е. srv). Если группа не будет 
+webmaster то nginx бует возвращать 404 (из-за Permission denied)
+Хорошо и на русском об этом написано тут http://help.ubuntu.ru/wiki/стандартные_права_unix
+-----------------------------------------------------------------------------------------------
+Инструкция по эксплуотации:
+
+# добавление нового домена (сайта)
+new_site vladsandbox.biz
+
+# Перезагрузка nginx (перечитывает файлы конфигурации):
+web_reload
+
+Папка сайта /home/srv/vladsandbox.biz, в ней:
+htdocs/www - тут лежат файлы доступные из web по адресу http://vladsandbox.biz/
+logs - логи сервера (Логи за последние 10 дней бэкапятся в папку /home/srv/logs_backup)
+
+в /home/srv/sites-conf/ (символическая ссылка) - хранятся конфиги nginx для каждого сайта, например vladsandbox.biz.conf 
+после изменения надо вызывать web_reload для перезагрузки конфигурации nginx
+
+# Перезагрузка php-fpm (после изменения php.ini)
+phpfpm_restart
+
+# Перезагрузка mysql (после изменения php.ini)
+mysqld_restart
+
+Из под рута перезапуск:
+/etc/init.d/nginx restart
+/etc/init.d/php-fpm restart
+/etc/init.d/mysqld restart
+
+/etc/init.d/nginx stop
+/etc/init.d/php-fpm stop
+/etc/init.d/mysqld stop
+
+# kill -HUP `cat /var/run/nginx.pid`
+
+
+ps ax -o pid,ppid,user,%cpu,vsz,wchan,command | egrep '(nginx|PID)'
+
+===============================
+
+# grep user /etc/nginx/nginx.conf
+user  nginx webmaster;
+
+# ll -d /home/srv
+drwxr-x--- 8 srv webmaster 4096 Nov 13 05:30 /home/srv

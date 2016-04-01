@@ -1,9 +1,21 @@
-Установка php 5.4.0 + nginx php-fpm на CentOS 6.2
+Установка php 7 + nginx php-fpm на CentOS 7
 =====================================
 
 # Смотрим версию CentOS
 cat /etc/redhat-release
-lsb_release
+
+# Добавляем пользователя и группу
+groupadd webmaster
+useradd -G webmaster srv
+# или usermod -G webmaster srv
+
+# To create the docker group and add your user:
+usermod -aG docker srv
+cat /etc/group | grep docker
+
+
+# Комманды yum http://www.cyberciti.biz/faq/rhel-centos-fedora-linux-yum-command-howto/
+# http://wiki.russianfedora.ru/index.php/Работа_с_Yum
 
 # Что установлено
 yum list installed | grep php
@@ -11,17 +23,23 @@ yum list installed | grep php
 # Пакет приоритетов репозиториев
 yum install yum-priorities
 
-# Репозитории
+# Репозитории (ищем тут нужный http://download.fedoraproject.org/pub/epel/6/x86_64/)
 rpm -Uvh http://download.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-5.noarch.rpm
 
 # Репозитории remi (в нём php 5.3.10)
 rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
 
+# Ещё можно так установить репозиторий
+su -
+cd /etc/yum.repos.d
+wget http://rpms.famillecollet.com/enterprise/remi.repo
+
 # Включаем репозиторий remi (обычно отключён по умолчанию)
+# Если хотим всё самое новое, то включаем также репозиторий remi-test
 nano /etc/yum.repos.d/remi.repo
 ------------------------------------------------------------------------------------
 enabled=1
-------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------
 
 # Добавляем репозиторий Nginx http://wiki.nginx.org/Install:
 nano /etc/yum.repos.d/nginx.repo
@@ -36,17 +54,26 @@ enabled=1
 # Смотрим какие доступны репозитории (надо remi и nginx)
 yum repolist
 
-# Добавляем пользователя и группу
-groupadd webmaster
-useradd -G webmaster srv
-# или usermod -G webmaster srv
-
 # Устанавливаем nginx
 yum install nginx
+
+# Чтобы проверить параметры сборки nginx можно вызвать коммнду
+nginx -V
+nginx -v # покажет только версию
+# нужно удостоверится что пользователь nginx может писать в свою работчую папку
+# для этого следующей коммандой можно посмотреть домашний каталог пользователя
+finger nginx
+# например это /var/cache/nginx - удостоверьтесь, что владельцем этого каталога 
+# является пользователь nginx
+chown nginx:nginx -R /var/cache/nginx
 
 # Устанавливаем php
 yum install php
 yum install php-fpm
+
+Пакеты которые были установлены у меня (если нужно удалить php)
+yum remove php-common php-fpm php-devel php-mbstring php-pecl-apc php-pecl-igbinary php-cli php-mysqlnd php-soap php-pear php-pecl-xdebug php-pecl-zip php-pdo php-xml php-pecl-mongo php-pecl-jsonc-devel php-gd php-redis php-pecl-jsonc
+
 
 # Донастраиваем php.ini (находим эти строки и меняем)
 nano /etc/php.ini
@@ -57,13 +84,14 @@ display_errors = On
 display_startup_errors = On
 track_errors = On
 html_errors = On
-date.timezone = "Europe/Moscow
+date.timezone = "Europe/Moscow"
 ---------------------------------------------------
 
 # Настройка php-fpm
 nano /etc/php-fpm.d/www.conf
 ----------------------------------
 listen = /var/run/fastcgi_sock
+listen.mode = 0666
 user = nginx
 group = webmaster
 ----------------------------------
@@ -80,10 +108,12 @@ chmod u=rwX,g=srwX,o= -R /var/lib/php/session
 chkconfig --levels 345 php-fpm on
 chkconfig --levels 235 nginx on
 
-# Открыdftv в файрволе порт 80
+# Открываем в файрволе порт 80
+yum install iptables-services
+systemctl start iptables
+systemctl enable iptables
 iptables -I INPUT -p tcp --dport 80 -m state --state NEW -j ACCEPT
-iptables-save > /etc/sysconfig/iptables
-chkconfig iptables on
+service iptables save
 
 # Настройка 
 ==========================================
@@ -210,12 +240,52 @@ server {
 }
 ---------------------------------------------------
 
+Настройка sudo
+
+под рутом 
+vi /etc/sudoers
+
+в конец добавляем:
+
+----------------------------------------------------
+srv ALL=NOPASSWD: /etc/init.d/nginx reload
+srv ALL=(nginx) NOPASSWD: ALL
+srv ALL=NOPASSWD: /root/bin/fantom_rights
+srv ALL=NOPASSWD: /usr/sbin/addcron
+srv ALL=NOPASSWD: /etc/init.d/crond reload
+----------------------------------------------------
+
+# Настройка автообновления времяни и зон
+==========================================
+# Улучшенный скрипт, вообще ничего не спрашивает, все вроде делает правильно
+# Обновляем пакет с таймзонами (там должна быть актуальная московская ТЗ)
+
+yum -y -q install tzdata ntp
+
+# Настраиваем московскую ТЗ
+
+mv -f /etc/localtime ~/localtime.orig
+ln -s /usr/share/zoneinfo/Europe/Moscow /etc/localtime
+
+# Корректируем время вручную по одному из серверов
+/etc/init.d/ntpd stop
+/sbin/ntpdate 0.centos.pool.ntp.org 1.centos.pool.ntp.org 2.centos.pool.ntp.org
+/etc/init.d/ntpd start
+
+# Проставляем ntpd в автозапуск (на всякий случай)
+/sbin/chkconfig --levels 345 ntpd on
+
+# Устанавливаем и проверяем системное время
+/sbin/hwclock --systohc
+/sbin/hwclock
+
 
 # Проверка
 ===========================
 
 # Перезагружаем машину
 /sbin/shutdown -r now
+/etc/init.d/nginx stop
 
 # Смотрим процессы nginx
 ps -A | grep nginx
@@ -227,12 +297,10 @@ ps -A | grep php
 netstat -tnlp | grep nginx
 
 # Смотрим слушает ли php-fpm порт /var/run/fastcgi_sock
-netstat -an | grep /var/run/fastcgi_sock
+ss -an | grep /var/run/fastcgi_sock
 
 # Проверяем (должна отдаться страница index.html "Welome, Nginx!")
-wget http://127.0.0.1/
-cat index.html
-rm index.html
+wget http://127.0.0.1/ -q -O -
 
 # Создание нового сайта
 su srv
@@ -251,6 +319,7 @@ pear channel-discover pear.phpunit.de
 pear channel-discover  pear.symfony-project.com
 pear remote-list -c phpunit
 pear install phpunit/PHPUnit
+pear install --alldeps --force phpunit/PHPUnit
 
 # APC
 yum install php-pecl-apc
@@ -366,4 +435,19 @@ mysqld_restart
 /etc/init.d/php-fpm restart
 /etc/init.d/mysqld restart
 
+/etc/init.d/nginx stop
+/etc/init.d/php-fpm stop
+/etc/init.d/mysqld stop
 
+# kill -HUP `cat /var/run/nginx.pid`
+
+
+ps ax -o pid,ppid,user,%cpu,vsz,wchan,command | egrep '(nginx|PID)'
+
+===============================
+
+# grep user /etc/nginx/nginx.conf
+user  nginx webmaster;
+
+# ll -d /home/srv
+drwxr-x--- 8 srv webmaster 4096 Nov 13 05:30 /home/srv

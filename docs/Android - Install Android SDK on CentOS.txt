@@ -29,6 +29,9 @@ export PATH=$PATH:/opt/android-sdk/platform-tools/
 
 Установка android-apktool:
 =====================================
+su
+mkdir /usr/src/apktool
+cd /usr/src/apktool
 wget http://android-apktool.googlecode.com/files/apktool-install-linux-r04-brut1.tar.bz2
 wget http://android-apktool.googlecode.com/files/apktool1.4.3.tar.bz2
 tar xvf apktool-install-linux-r04-brut1.tar.bz2

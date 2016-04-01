@@ -1,5 +1,9 @@
-Для того чтобы пше работал с github по ssh нужно 
+Для того чтобы git работал с github по ssh нужно 
 сгенерировать ключи и добавить публиыный кюч в свой аккаунт на github
+
+По умолчанию для папка .ssh находится в домашнем каталоге.
+Для Windows 7 это C:/Users/<username>/
+Чтобы ssh s Windows нашол эту папку должна быть выставлена переменная окружения HOME=C:/Users/<username>/
 
 Генерация ключа:
 ssh-keygen -C "My key alias"
@@ -28,6 +32,9 @@ Host myname.github.com
 	HostName github.com
 	User git
     IdentityFile ~/.ssh/id_rsa.myname
+
+Надо выставить права:
+chmod 600 ~/.ssh/config
 
 Привязываем удалённый репозиторий:
 git remote add origin ssh://git@myname.github.com:myname/repo.git

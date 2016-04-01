@@ -7,16 +7,16 @@ http://ipgeobase.ru/
 Выяснилось на веб-сервис.
 2. Посмотрели что именно за запросы так часто приходят
 
-tcpdump -n -s 2048 -w - port 80 | strings | egrep -i "^(get|host)"
+/usr/sbin/tcpdump -n -s 2048 -w - port 80 | strings | egrep -i "^(get|host)"
 
-tcpdump -n -s 2048 -w - port 80 | strings | egrep -i "^(get /index)"
-tcpdump -n -s 2048 -w - port 80 | strings | egrep -i "^(get /par)"
+/usr/sbin/tcpdump -n -s 2048 -w - port 80 | strings | egrep -i "^(get /index)"
+/usr/sbin/tcpdump -n -s 2048 -w - port 80 | strings | egrep -i "^(get /par)"
 
-tcpdump -n -s 2048 -w - port 80 | strings | egrep -i "(jad|jar)"
+/usr/sbin/tcpdump -n -s 2048 -w - port 80 | strings | egrep -i "(jad|jar)"
 
-tcpdump -n -s 2048 -w - port 80 | strings | egrep -i "^(get)"
+/usr/sbin/tcpdump -n -s 2048 -w - port 80 | strings | egrep -i "^(get)"
 
-tcpdump -n -s 2048 -w - port 80 | strings  
+/usr/sbin/tcpdump -n -s 2048 -w - port 80 | strings  
 
 По результатц выяснили на какой хостинг направлена атака и какая строка запроса к апачу.
 3. Сканировали каждые 5 минут access_log на наличие айпи адресов запрашивающих именно этот url очень активно (потом более ограничили, запрашивающих за интервал только этот урл).
@@ -36,3 +36,25 @@ http://forum.profit-partner.ru/viewtopic.php?t=1509&postdays=0&postorder=asc&sta
 > сайтов которые периодически валят, надо подготовится...
 
 Далее: http://www.opennet.ru/base/net/ddos_nginx.txt.html
+
+Просмотр статистики
+iostat -x 5
+
+/etc/php-fpm.d/www.conf
+
+ps ax -o pid,ppid,user,%cpu,vsz,wchan,command | egrep '(nginx|PID)'
+
+Убивание процессов
+Смотрим чем блокирован yum:
+ ps aux | grep yum
+Убиваем процеес по PID:
+ kill PID
+Снова смотрим:
+ ps aux | grep yum
+Если проблема осталась, смотрим:
+ cat /var/run/yum.pid
+убиваем так же по PID
+
+Rckb процесс просто так не убивается то можно попробовать 
+kill -9 PID
+

@@ -1,0 +1,24 @@
+#!/bin/bash
+
+DATE=`date +"%Y-%m-%d"`
+
+for site in `ls /home/srv/sites-conf | sed -rn 's/(.+?)\.conf/\1/ p'`; do
+        for log in `sed -nr 's/^.+(access|error)_log\s+(.+?);/\2/g p' /home/srv/sites-conf/${site}.conf`; do
+                if [ -f $log ]; then
+                        mkdir -p /home/srv/logs_backup/${DATE}/$site
+                        mv $log /home/srv/logs_backup/${DATE}/$site
+                fi
+        done
+done
+
+chown srv:srv -R /home/srv/logs_backup
+
+[ ! -f /var/run/nginx.pid ] || kill -USR1 `cat /var/run/nginx.pid`
+
+for dir in `ls /home/srv/logs_backup | head -n-10`; do
+        rm -rf /home/srv/logs_backup/$dir
+done
+
+# Cron Log rotate
+# vim /etc/crontab
+# 30 5 * * * root /root/bin/nginx_vhost_log_rotate:

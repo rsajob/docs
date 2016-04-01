@@ -28,6 +28,7 @@ git push origin :feature #В удалённом репозитории
 
 Переименовать текущий бранч:
 git branch -m new_name
+git branch -M new_name (-M позволяет проигнорировать, что new_name уже есть)
 
 Переименовать любой бранч:
 git branch -m current_name new_name
@@ -42,7 +43,7 @@ git submodule add git@github.com:rsajob/limb.git lib/limb
  Заходим в директорию субмодуля
 cd src/vendor/symfony/
 Обновляем субмодуль
-git checkout -f
+git checkout -f (#Отказаться от всех изменений в рабочем каталоге)
 
 2) Допустим кто-то хочет развернуть ваш проект в своей локальной директории:
 Первым делом клонирует проект
@@ -57,3 +58,10 @@ git submodule update --init
 то надо в модулях поменять ссылки на Read-only версию
 git://github.com/rsajob/limb.git
 git config submodule.lib/limb.url git://github.com/rsajob/limb.git
+
+Надо разобрать
+
+
+#удалить файл из индекса, оставив его при этом в вашем рабочем каталоге.
+git rm --casced fole_or_dir
+
