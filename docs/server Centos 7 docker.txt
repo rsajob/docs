@@ -1,50 +1,46 @@
 
-# Смотрим версию CentOS
+# РЎРјРѕС‚СЂРёРј РІРµСЂСЃРёСЋ CentOS
 cat /etc/redhat-release
 
-# Добавляем пользователя и группу
+# Р”РѕР±Р°РІР»СЏРµРј РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ Рё РіСЂСѓРїРїСѓ
 usermod -G webmaster srv
 
 # To create the docker group and add your user:
 usermod -aG docker srv
 cat /etc/group | grep docker
 
-# Устанавливаем docker как написано тут https://docs.docker.com/engine/installation/linux/centos/
-# Перелогиниваемся, затем docker должен работать без sudo, проверяем
+# РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј docker РєР°Рє РЅР°РїРёСЃР°РЅРѕ С‚СѓС‚ https://docs.docker.com/engine/installation/linux/centos/
+# РџРµСЂРµР»РѕРіРёРЅРёРІР°РµРјСЃСЏ, Р·Р°С‚РµРј docker РґРѕР»Р¶РµРЅ СЂР°Р±РѕС‚Р°С‚СЊ Р±РµР· sudo, РїСЂРѕРІРµСЂСЏРµРј
 docker run hello-world
 
-# Добавляем свой ssh ключ на сервер netlug.biz чтобы git мог забирать данные оттуда
+# Р”РѕР±Р°РІР»СЏРµРј СЃРІРѕР№ ssh РєР»СЋС‡ РЅР° СЃРµСЂРІРµСЂ netlug.biz С‡С‚РѕР±С‹ git РјРѕРі Р·Р°Р±РёСЂР°С‚СЊ РґР°РЅРЅС‹Рµ РѕС‚С‚СѓРґР°
 ssh-keygen -C srv@centos7
 ssh-copy-id -i ~/.ssh/id_rsa.pub srv@netlug.biz
 
 
+#  РџСЂРѕРµРєС‚ gameclub
 
-
-#  Проект gameclub
-
-# Перебрасываем базу
-# ну том серере где беза делаем дамп:
+# РџРµСЂРµР±СЂР°СЃС‹РІР°РµРј Р±Р°Р·Сѓ
+# РЅСѓ С‚РѕРј СЃРµСЂРµСЂРµ РіРґРµ Р±РµР·Р° РґРµР»Р°РµРј РґР°РјРї:
 mongodump --db gameclub_apps
 
-# на сервере куда надо закинуть её в контенер:
+# РЅР° СЃРµСЂРІРµСЂРµ РєСѓРґР° РЅР°РґРѕ Р·Р°РєРёРЅСѓС‚СЊ РµС‘ РІ РєРѕРЅС‚РµРЅРµСЂ:
 mkdir ~/mongo_dump
 scp -r srv@netlug.biz:~/mongo_dump/dump ~/mongo_dump
 docker exec mongo1 mkdir /tmp/mongo_dump
 docker cp ~/mongo_dump mongo1:/tmp
-# Заходим в контейнер и делаем restore
+# Р—Р°С…РѕРґРёРј РІ РєРѕРЅС‚РµР№РЅРµСЂ Рё РґРµР»Р°РµРј restore
 docker exec -it mongo1 bash
 mongorestore --db gameclub_apps /tmp/mongo_dump/dump/gameclub_apps
 
-# Готовим проект
+# Р“РѕС‚РѕРІРёРј РїСЂРѕРµРєС‚
 
 mkdir ~/projects/game-club
 git clone srv@git.netlug.biz:git/gameclub/slim.gameclub.git .
 
-# Сборка
+# РЎР±РѕСЂРєР°
 docker run --rm -v `pwd`:/app -v /home/srv/.ssh:/root/.ssh composer/composer install
 docker run --rm -v `pwd`:/data -v $HOME/.node-cache:/cache leanlabs/npm-builder npm install
 docker run --rm -v `pwd`:/data -v $HOME/.node-cache:/cache leanlabs/npm-builder bower install --allow-root
 docker run --rm -v `pwd`:/data -v $HOME/.node-cache:/cache leanlabs/npm-builder grunt
-
-
 

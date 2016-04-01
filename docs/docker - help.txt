@@ -1,17 +1,17 @@
 
-# Удалить все образы
+# РЈРґР°Р»РёС‚СЊ РІСЃРµ РѕР±СЂР°Р·С‹
 docker rmi -f `docker images | awk '{ print $3; }'`
 
-# Список всех контенеров
+# РЎРїРёСЃРѕРє РІСЃРµС… РєРѕРЅС‚РµРЅРµСЂРѕРІ
 docker ps -a
 
-# Список всех образов
+# РЎРїРёСЃРѕРє РІСЃРµС… РѕР±СЂР°Р·РѕРІ
 docker images
 
-# Удалить все контенеры
+# РЈРґР°Р»РёС‚СЊ РІСЃРµ РєРѕРЅС‚РµРЅРµСЂС‹
 docker rm `docker ps --no-trunc -aq`
 
-# Инструмент для визуального отображения среды Weave Scope
+# РРЅСЃС‚СЂСѓРјРµРЅС‚ РґР»СЏ РІРёР·СѓР°Р»СЊРЅРѕРіРѕ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ СЃСЂРµРґС‹ Weave Scope
 $ wget -O scope https://github.com/weaveworks/scope/releases/download/latest_release/scope
 $ chmod +x scope
 $ scope launch
@@ -21,7 +21,7 @@ docker run -d -p 9000:9000 --privileged \
   -v /var/run/docker.sock:/var/run/docker.sock \
   --name=dockerui dockerui/dockerui
 
-# Запуск системы мониторинга cAdvisor от Google:
+# Р—Р°РїСѓСЃРє СЃРёСЃС‚РµРјС‹ РјРѕРЅРёС‚РѕСЂРёРЅРіР° cAdvisor РѕС‚ Google:
 docker run \
 --privileged=true \
 --volume=/:/rootfs:ro \
@@ -37,7 +37,7 @@ google/cadvisor:latest
 --volume=/var/run/docker.sock:/var/run/docker.sock \
 --logtostderr
 
-# Хооший FAQ по docker: https://xakep.ru/2015/06/04/docker-faq/
+# РҐРѕРѕС€РёР№ FAQ РїРѕ docker: https://xakep.ru/2015/06/04/docker-faq/
 
-# Вебинар по докеру 22.03.2016
+# Р’РµР±РёРЅР°СЂ РїРѕ РґРѕРєРµСЂСѓ 22.03.2016
 http://www.youtube.com/watch?v=fUA8D2zkFCA
