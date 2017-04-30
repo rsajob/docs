@@ -41,6 +41,11 @@ docker run --rm -v `pwd`:/app -v /home/srv/.ssh:/root/.ssh composer/composer ins
 docker run --rm -v `pwd`:/data -v $HOME/.node-cache:/cache leanlabs/npm-builder npm install
 docker run --rm -v `pwd`:/data -v $HOME/.node-cache:/cache leanlabs/npm-builder bower install --allow-root
 docker run --rm -v `pwd`:/data -v $HOME/.node-cache:/cache leanlabs/npm-builder grunt
+# Сборка
+docker run --rm -v `pwd`:/app -v /home/srv/.ssh:/root/.ssh composer/composer install
+docker run --rm -v `pwd`:/data -v $HOME/.node-cache:/cache leanlabs/npm-builder npm install
+docker run --rm -v `pwd`:/data -v $HOME/.node-cache:/cache leanlabs/npm-builder bower install --allow-root
+docker run --rm -v `pwd`:/data -v $HOME/.node-cache:/cache leanlabs/npm-builder grunt
 
 
 Полезности по Docker
